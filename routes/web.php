@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\SuperAdminMiddleware;
+use App\Http\Controllers\UserControllers\PMController;
 
 
 // Redirect all unauthenticated users to login first
@@ -13,7 +14,8 @@ Route::get('/', function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/', function () {
-        return view('dashboard');
+        return view('pm-dashboard');
     });
+    Route::resource('manager-dashboard', PMController::class);
 });
 
