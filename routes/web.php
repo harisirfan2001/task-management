@@ -14,7 +14,7 @@ Route::get('/', function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/', function () {
-        return view('pm-dashboard');
+        return view('manager.create');
     });
     Route::resource('manager-dashboard', PMController::class);
 });

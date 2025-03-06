@@ -7,6 +7,7 @@
 
     <!-- Bootstrap 3 -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
     <style>
@@ -60,7 +61,7 @@
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <form action="{{ route('manager-dashboard.store') }}" method="POST">
+                    <form id="taskForm">
                         @csrf
                         <div class="form-group">
                             <label>Task Description</label>
@@ -68,12 +69,7 @@
                         </div>
                         <div class="form-group">
                             <label>Task Assigned To</label>
-                            <select class="form-control" name="assigned_to" required>
-                                <option value="">Select a user</option>
-                                <option value="User 1">User 1</option>
-                                <option value="User 2">User 2</option>
-                                <option value="User 3">User 3</option>
-                            </select>
+                            <input type="text" class="form-control" name="assigned_to" required>
                         </div>
                         <div class="form-group">
                             <label>Deadline</label>
@@ -102,16 +98,68 @@
     </div>
 
     <h3>Task List</h3>
-    @foreach($tasks as $task)
-        <div class="card priority-{{ strtolower($task->priority) }}">
-            <h4>{{ $task->description }}</h4>
-            <p><strong>Assigned To:</strong> {{ $task->assigned_to }}</p>
-            <p><strong>Deadline:</strong> {{ $task->deadline }}</p>
-            <p><strong>Remarks:</strong> {{ $task->remarks ?? 'N/A' }}</p>
-            <p><strong>Priority:</strong> <span class="label label-{{ strtolower($task->priority) == 'high' ? 'danger' : (strtolower($task->priority) == 'medium' ? 'warning' : 'success') }}">{{ $task->priority }}</span></p>
-        </div>
-    @endforeach
+    <div id="taskList">
+        @if(isset($tasks) && $tasks->isNotEmpty())
+            @foreach($tasks as $task)
+                <div class="card priority-{{ strtolower($task->priority) }}">
+                    <h4>{{ $task->description }}</h4>
+                    <p><strong>Assigned To:</strong> {{ $task->assigned_to }}</p>
+                    <p><strong>Deadline:</strong> {{ $task->deadline }}</p>
+                    <p><strong>Remarks:</strong> {{ $task->remarks ?? 'N/A' }}</p>
+                    <p><strong>Priority:</strong> 
+                        <span class="label label-{{ strtolower($task->priority) == 'high' ? 'danger' : (strtolower($task->priority) == 'medium' ? 'warning' : 'success') }}">
+                            {{ $task->priority }}
+                        </span>
+                    </p>
+                </div>
+            @endforeach
+        @else
+            <p>No tasks available.</p>
+        @endif
+    </div>
 </div>
+
+<script>
+$(document).ready(function() {
+    $('#taskForm').submit(function(event) {
+        event.preventDefault();
+        $.ajax({
+            url: "{{ route('manager-dashboard.store') }}",
+            method: "POST",
+            data: $(this).serialize(),
+            success: function(response) {
+                if(response.task) {
+                    let task = response.task;
+                    let priorityClass = task.priority.toLowerCase() === 'high' ? 'priority-high' : 
+                                        task.priority.toLowerCase() === 'medium' ? 'priority-medium' : 'priority-low';
+                    
+                    $('#taskList').prepend(`
+                        <div class="card ${priorityClass}">
+                            <h4>${task.description}</h4>
+                            <p><strong>Assigned To:</strong> ${task.assigned_to}</p>
+                            <p><strong>Deadline:</strong> ${task.deadline}</p>
+                            <p><strong>Remarks:</strong> ${task.remarks || 'N/A'}</p>
+                            <p><strong>Priority:</strong> 
+                                <span class="label label-${task.priority.toLowerCase() === 'high' ? 'danger' : 
+                                            (task.priority.toLowerCase() === 'medium' ? 'warning' : 'success')}">
+                                    ${task.priority}
+                                </span>
+                            </p>
+                        </div>
+                    `);
+                    $('#exampleModal').modal('hide');
+                    $('#taskForm')[0].reset();
+                } else {
+                    alert('Invalid response from server.');
+                }
+            },
+            error: function(response) {
+                alert('Error creating task! Check your inputs.');
+            }
+        });
+    });
+});
+</script>
 
 </body>
 </html>
