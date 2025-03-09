@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->text('assigned_to');
             $table->date('deadline');
             $table->text('remarks')->nullable();
-            $table->date('date_of_creation');
+            $table->enum('status', ['Active', 'Completed', 'Cancelled'])->default('Active');
             $table->enum('priority', ['High', 'Medium', 'Low'])->default('Medium');
             $table->timestamps();
         });
