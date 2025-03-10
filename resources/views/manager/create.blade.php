@@ -89,15 +89,27 @@
         }
         .summary-card1:hover { 
             box-shadow: 3px 3px 10px rgb(11, 194, 35);
+            background: rgb(157, 255, 170);
+            border-left:none;
+            transition: 0.3s;
         }
         .summary-card2:hover { 
             box-shadow: 3px 3px 10px rgb(219, 198, 4);
+            background: rgb(243, 226, 78);
+            transition: 0.3s;
+            border-left:none;
         }
         .summary-card3:hover { 
             box-shadow: 3px 3px 10px rgb(248, 0, 0);
+            background: rgb(255, 157, 157);
+            transition: 0.3s;
+            border-left:none;
         }
         .summary-card4:hover { 
             box-shadow: 3px 3px 10px rgb(0, 38, 255);
+            background: rgb(51, 83, 243);
+            transition: 0.3s;
+            border-left:none;
         }
 
         .card:hover {
@@ -105,15 +117,19 @@
         }
 
         .priority-high {
+           border-left: 5px solid red;
+       }
+        .priority-high:hover {
             border-left: 5px solid red;
             background: rgb(255, 157, 157);
-
-            
+            transition: 0.3s;
+  
         }
 
         .priority-medium {
             border-left: 5px solid orange;
             background: rgb(255, 209, 157);
+            transition: 0.3s;
             
         }
 
