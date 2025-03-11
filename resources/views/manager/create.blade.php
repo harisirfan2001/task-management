@@ -37,7 +37,7 @@
             justify-content: space-between;
             box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
             transition: 0.3s;
-            border-left: 5px solid green;
+            border-top: 5px solid green;
         }
         .summary-card2 {
             padding: 15px;
@@ -50,7 +50,7 @@
             justify-content: space-between;
             box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
             transition: 0.3s;
-            border-left: 5px solid yellow;
+            border-top: 5px solid yellow;
         }
         .summary-card3 {
             padding: 15px;
@@ -63,7 +63,7 @@
             justify-content: space-between;
             box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
             transition: 0.3s;
-            border-left: 5px solid red;
+            border-top: 5px solid red;
         }
         .summary-card4 {
             padding: 15px;
@@ -76,44 +76,44 @@
             justify-content: space-between;
             box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
             transition: 0.3s;
-            border-left: 5px solid blue;
+            border-top: 5px solid blue;
         }
 
         .card {
-    border-radius: 8px;
-    background: white;
-    padding: 12px; /* Reduced from 15px */
-    margin: 12px 0px; /* Same as padding */
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-    transition: 0.3s;
-    line-height: 1.2;
-    min-height: 60px; /* Adjusted height to make it more compact */
-    overflow: hidden; /* Ensures content doesn’t overflow */
-}
-
+            
+            border-radius: 8px;
+            background: white;
+            padding: 3px;
+            padding-left: 15px;
+            padding-right: 15px;
+            margin: 7px 0px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            transition: 0.3s;
+            line-height: 1.2;
+        }
         .summary-card1:hover { 
             box-shadow: 3px 3px 10px rgb(11, 194, 35);
             background: rgb(157, 255, 170);
-            border-left:none;
+            border-top:none;
             transition: 0.3s;
         }
         .summary-card2:hover { 
             box-shadow: 3px 3px 10px rgb(219, 198, 4);
             background: rgb(255, 238, 82);
             transition: 0.3s;
-            border-left:none;
+            border-top:none;
         }
         .summary-card3:hover { 
             box-shadow: 3px 3px 10px rgb(248, 0, 0);
             background: rgb(255, 157, 157);
             transition: 0.3s;
-            border-left:none;
+            border-top:none;
         }
         .summary-card4:hover { 
             box-shadow: 3px 3px 10px rgb(0, 38, 255);
             background: rgb(51, 83, 243);
             transition: 0.3s;
-            border-left:none;
+            border-top:none;
         }
 
         .card:hover {
@@ -134,8 +134,7 @@
 
         .priority-medium {
             border-left: 5px solid orange;
-            background: rgb(255, 209, 157);
-            transition: 0.3s;
+           
             
         }
         .priority-medium:hover {
@@ -164,7 +163,7 @@
             color: black;
         }
 
-        .task-actions button {
+        .task-actions{
             margin: 5px 0px;
         }
 
@@ -174,7 +173,7 @@
             flex-wrap: wrap;
         }
         .badge { 
-            
+            margin-top: 7px;
             font-size: 14px;
     
 
@@ -198,6 +197,7 @@
             </button>
             <div class="collapse navbar-collapse" id="navbar-menu">
                 <ul class="navbar-nav ms-auto">
+                    <button style="margin-right: 10px; color: white;" type="button"class="btn" data-bs-toggle="modal" data-bs-target="#taskModal">Create Task</button>
                     <li class="nav-item">
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
@@ -237,8 +237,7 @@
                 </div>
         </div>
 
-    </div>
-    <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#taskModal">Create Task</button>
+</div>
 
     <h3 class="mt-4">Task List</h3>
     <div id="taskList"></div>
@@ -288,8 +287,9 @@
         $(document).ready(function () {
             function show() {
                 $.ajax({
-                    url: "{{ route('manager-dashboard.index') }}",
+                    url: "/manager-dashboard",
                     method: "GET",
+                    dataType: 'json',
                     success: function (response) {
                         $('#taskList').html('');
                         $('#activeTasks').text(response.activeTasks);
@@ -305,7 +305,7 @@
                                  <p><span class="badge ${getStatusClass(task.status)}">${task.status}</span></p>
                                  <span class="task-date">${new Date(task.created_at).toLocaleDateString()}</span>
                                     </div>
-                            <h4><strong>${task.description}</strong></h4>
+                            <h5><strong>${task.description}</strong></h5>
                             <div class="task-details">
                                 <p><strong>Assigned To:</strong> ${task.assigned_to}</p>
                                <p style="margin-left: 30px;"><strong>Deadline:</strong> ${task.deadline}</p>
@@ -314,8 +314,8 @@
 
                            </div>
                                 <div class="task-actions">
-                                    <button class="btn btn-warning btn-sm">Edit</button>
-                                    <button class="btn btn-danger btn-sm">Delete</button>
+                                 <a href="#" class="btn btn-warning btn-sm" onclick="editTask(event, ${task.id})">Edit</a>
+                                 <a href="#" class="btn btn-danger btn-sm" onclick="deleteTask(event, ${task.id})">Delete</a>
                                 </div>     
                         </div>
 
@@ -328,12 +328,13 @@
                     }
                 });
             }
+            
 
             $('#taskForm').submit(function (e) {
                 e.preventDefault();
                 let formData = $(this).serialize();
                 $.ajax({
-                    url: "{{ route('manager-dashboard.store') }}",
+                    url: "/manager-dashboard",
                     method: "POST",
                     data: formData,
                     headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
@@ -362,6 +363,48 @@
         default: return 'bg-dark text-dark';
     }
 }
+function editTask(event, taskId) {
+    event.preventDefault();
+    // Fetch task data and populate modal for editing
+    $.ajax({
+        url: `/tasks/${taskId}/edit`,
+        type: "GET",
+        success: function (task) {
+            $('input[name="description"]').val(task.description);
+            $('input[name="assigned_to"]').val(task.assigned_to);
+            $('input[name="deadline"]').val(task.deadline);
+            $('input[name="remarks"]').val(task.remarks);
+            $('select[name="priority"]').val(task.priority);
+            $('#taskForm').attr('action', `/tasks/${taskId}`);
+            $('#taskModal').modal('show');
+        },
+        error: function () {
+            alert('Error fetching task details.');
+        }
+    });
+}
+
+function deleteTask(event, taskId) {
+    event.preventDefault();
+    if (confirm('Are you sure you want to delete this task?')) {
+        $.ajax({
+            url: `/manager-dashboard/${taskId}`,
+            type: "DELETE",
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function () {
+                alert('Task deleted successfully.');
+                show();
+                
+            },
+            error: function () {
+                alert('Error deleting task.');
+            }
+        });
+    }
+}
+
 
 
     </script>
