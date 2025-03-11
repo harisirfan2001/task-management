@@ -80,13 +80,17 @@
         }
 
         .card {
-            border-radius: 8px;
-            background: white;
-            padding: 15px;
-            margin: 5px -5px;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-            transition: 0.3s;
-        }
+    border-radius: 8px;
+    background: white;
+    padding: 12px; /* Reduced from 15px */
+    margin: 12px 0px; /* Same as padding */
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    transition: 0.3s;
+    line-height: 1.2;
+    min-height: 60px; /* Adjusted height to make it more compact */
+    overflow: hidden; /* Ensures content doesn’t overflow */
+}
+
         .summary-card1:hover { 
             box-shadow: 3px 3px 10px rgb(11, 194, 35);
             background: rgb(157, 255, 170);
@@ -95,7 +99,7 @@
         }
         .summary-card2:hover { 
             box-shadow: 3px 3px 10px rgb(219, 198, 4);
-            background: rgb(243, 226, 78);
+            background: rgb(255, 238, 82);
             transition: 0.3s;
             border-left:none;
         }
@@ -123,6 +127,8 @@
             border-left: 5px solid red;
             background: rgb(255, 157, 157);
             transition: 0.3s;
+            border-left:none;
+
   
         }
 
@@ -132,10 +138,23 @@
             transition: 0.3s;
             
         }
+        .priority-medium:hover {
+            border-left: 5px solid green;
+            background: rgb(255, 209, 157);
+            transition: 0.3s;
+            border-left:none;
+            
+        }
 
         .priority-low {
             border-left: 5px solid green;
+            
+        }
+        .priority-low:hover {
+            border-left: 5px solid green;
             background: rgb(157, 255, 170);
+            transition: 0.3s;
+            border-left:none;
             
         }
 
@@ -337,10 +356,10 @@
         function getStatusClass(status) {
     let normalizedStatus = status.trim().toLowerCase(); 
     switch (normalizedStatus) {
-        case 'Active': return 'bg-light text-green'; 
-        case 'Cancelled': return 'bg-light text-red'; 
-        case 'Completed': return 'bg-light text-blue'; 
-        default: return 'bg-light text-dark'; 
+        case 'active': return 'bg-success text-white'; 
+        case 'cancelled': return 'bg-danger text-white'; 
+        case 'completed': return 'bg-primary text-white'; 
+        default: return 'bg-dark text-dark';
     }
 }
 
