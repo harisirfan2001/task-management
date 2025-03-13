@@ -78,19 +78,38 @@
             transition: 0.3s;
             border-top: 5px solid blue;
         }
-
         .card {
-            
-            border-radius: 8px;
-            background: white;
-            padding: 3px;
-            padding-left: 15px;
-            padding-right: 15px;
-            margin: 7px 0px;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-            transition: 0.3s;
-            line-height: 1.2;
-        }
+    width: 100%; 
+    max-width: 100%;
+    max-height: 45px; 
+    display: flex;
+    justify-content: space-between;
+    background: #f8f9fa;
+    padding: 5px 10px; 
+    margin: 7px 0px;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    transition: max-height 0.6s ease-in-out, padding 0.3s ease-in-out;
+    overflow: hidden;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.card:hover {
+    display:flex;
+    max-height: 170px; 
+    border-radius: 30px; 
+    height: auto; 
+    min-height: 70px; 
+    border-radius: 8px;
+    background: white;
+    padding: 3px 15px; 
+    margin: 7px 0px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.6s ease-in-out;
+    white-space: normal; 
+    transform: scale(1.02); 
+}
+
         .summary-card1:hover { 
             box-shadow: 3px 3px 10px rgb(11, 194, 35);
             background: rgb(157, 255, 170);
@@ -116,9 +135,7 @@
             border-top:none;
         }
 
-        .card:hover {
-            box-shadow: 4px 4px 20px rgba(0, 0, 0, 0.3);
-        }
+      
 
         .priority-high {
            border-left: 5px solid red;
@@ -159,8 +176,10 @@
 
         .task-date {
            margin-left: auto;
-            font-size: 15px;
+            font-size: 14px;
             color: black;
+            margin-bottom: 10px;
+            font-weight: bold;
         }
 
         .task-actions{
@@ -172,22 +191,25 @@
             justify-content: flex-start;
             flex-wrap: wrap;
         }
-        .badge { 
-            margin-top: 7px;
+        .badge{            
+            margin-top: 5px;
             font-size: 14px;
-    
-
+        }
+        .taskid{
+            margin-left: 5px;
         }
         .task-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    width: 100%; /* Ensures it takes full width */
+    align-items: center; 
+    width: 100%; 
 }
     </style>
 </head>
 
 <body>
+
+
 
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
@@ -197,7 +219,7 @@
             </button>
             <div class="collapse navbar-collapse" id="navbar-menu">
                 <ul class="navbar-nav ms-auto">
-                    <button style="margin-right: 10px; color: white;" type="button"class="btn" data-bs-toggle="modal" data-bs-target="#taskModal">Create Task</button>
+                    <button id="addTaskButton" style="margin-right: 10px; color: white;" type="button"class="btn" data-bs-toggle="modal" data-bs-target="#taskModal">Create Task</button>
                     <li class="nav-item">
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
@@ -236,12 +258,12 @@
                     <h2 id="queriesTasks">0</h2>
                 </div>
         </div>
-
-</div>
-
+        
+    </div>
+    
     <h3 class="mt-4">Task List</h3>
     <div id="taskList"></div>
-
+    
     <!-- Task Modal -->
     <div class="modal fade" id="taskModal" tabindex="-1">
         <div class="modal-dialog">
@@ -253,6 +275,7 @@
                 <div class="modal-body">
                     <form id="taskForm">
                         <div class="mb-3">
+                            <input type="hidden" id="taskId" name="task_id">
                             <label class="form-label">Description</label>
                             <input type="text" class="form-control" name="description" required>
                         </div>
@@ -277,6 +300,7 @@
                             </select>
                         </div>
                         <button type="submit" class="btn btn-primary">Save Task</button>
+
                     </form>
                 </div>
             </div>
@@ -284,7 +308,14 @@
     </div>
 
     <script>
-        $(document).ready(function () {
+        $('#addTaskButton').click(function() {
+    $('#taskForm')[0].reset(); 
+    $('#taskId').val(''); 
+});
+                $(document).ready(function () {
+                    show();
+                });
+       
             function show() {
                 $.ajax({
                     url: "/manager-dashboard",
@@ -302,8 +333,10 @@
                             $('#taskList').append(`
                         <div class="card ${priorityClass}">
                          <div class="task-header">
-                                 <p><span class="badge ${getStatusClass(task.status)}">${task.status}</span></p>
-                                 <span class="task-date">${new Date(task.created_at).toLocaleDateString()}</span>
+                                 <p><span class="badge  ${getStatusClass(task.status)}">${task.status}</span></p>
+                               <p><span class="taskid badge bg-primary">Task # ${task.id}</span></p>
+                       
+                                 <span class="task-date ">${new Date(task.created_at).toLocaleDateString()}</span>
                                     </div>
                             <h5><strong>${task.description}</strong></h5>
                             <div class="task-details">
@@ -331,28 +364,29 @@
             
 
             $('#taskForm').submit(function (e) {
-                e.preventDefault();
-                let formData = $(this).serialize();
-                $.ajax({
-                    url: "/manager-dashboard",
-                    method: "POST",
-                    data: formData,
-                    headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-                    success: function () {
-                        $('#taskModal').modal('hide');
-                        $('#taskForm')[0].reset();
-                        show();
-                    },
-                    error: function () {
-                        alert('Error adding task.');
-                    }
-                });
-            });
+              e.preventDefault();
 
-            show();
-        });
+    let taskId = $('#taskId').val(); // Get the task ID
+    let formData = $(this).serialize();
+    let method = taskId ? "PUT" : "POST"; // Determine if it's a new task or an update
+    let url = taskId ? `/manager-dashboard/${taskId}` : "/manager-dashboard";
 
-    
+    $.ajax({
+        url: url,
+        method: method,
+        data: formData,
+        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+        success: function () {
+            $('#taskModal').modal('hide');
+            $('#taskForm')[0].reset();
+            show(); 
+        },
+        error: function () {
+            alert('Error processing request.');
+        }
+    });
+});
+
 
         function getStatusClass(status) {
     let normalizedStatus = status.trim().toLowerCase(); 
@@ -365,17 +399,17 @@
 }
 function editTask(event, taskId) {
     event.preventDefault();
-    // Fetch task data and populate modal for editing
     $.ajax({
-        url: `/tasks/${taskId}/edit`,
+        url: `/manager-dashboard/${taskId}/edit`,
         type: "GET",
         success: function (task) {
+            $('#taskId').val(task.id);
             $('input[name="description"]').val(task.description);
             $('input[name="assigned_to"]').val(task.assigned_to);
             $('input[name="deadline"]').val(task.deadline);
             $('input[name="remarks"]').val(task.remarks);
             $('select[name="priority"]').val(task.priority);
-            $('#taskForm').attr('action', `/tasks/${taskId}`);
+            $('#taskForm').attr('action', `/manager-dashboard/${taskId}`);
             $('#taskModal').modal('show');
         },
         error: function () {
@@ -404,8 +438,6 @@ function deleteTask(event, taskId) {
         });
     }
 }
-
-
 
     </script>
 
