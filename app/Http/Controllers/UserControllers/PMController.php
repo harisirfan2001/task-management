@@ -8,12 +8,21 @@ use App\Models\Task;
 
 class PMController extends Controller
 {
+   
+    public function create()
+    {
+        $nextTaskId = Task::max('id');
+        return response()->json(['nextTaskId' => $nextTaskId]);
+    }
+    
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
         $tasks = Task::all();
+        $latestTask = Task::latest()->first(); 
+        $nextTaskId = $latestTask ? $latestTask->id + 1 : 1; 
         $activeTasks = $tasks->where('status', 'Active')->count();
         $completedTasks = $tasks->where('status', 'Completed')->count();
         $cancelledTasks = $tasks->where('status', 'Cancelled')->count();
@@ -28,7 +37,7 @@ class PMController extends Controller
             ]);
         }
 
-        return view('manager.create', compact('tasks', 'activeTasks', 'completedTasks', 'cancelledTasks'));
+        return view('manager.create', compact('tasks', 'activeTasks', 'completedTasks', 'cancelledTasks', 'nextTaskId'));
     }
 
     /**
@@ -62,7 +71,7 @@ class PMController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id)
+    public function show($id)
     {
         $task = Task::find($id);
 
@@ -81,6 +90,15 @@ class PMController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $task = Task::find($id);
+    
+        if (!$task) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Task not found.'
+            ], 404);
+        }
+    
         $request->validate([
             'description' => 'required|string|max:1000',
             'assigned_to' => 'required|string',
@@ -88,16 +106,7 @@ class PMController extends Controller
             'remarks' => 'nullable|string|max:500',
             'priority' => 'required|in:High,Medium,Low',
         ]);
-
-        $task = Task::find($id);
-
-        if (!$task) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Task not found.'
-            ], 404);
-        }
-
+    
         $task->update([
             'description' => $request->description,
             'assigned_to' => $request->assigned_to,
@@ -105,15 +114,15 @@ class PMController extends Controller
             'remarks' => $request->remarks,
             'priority' => $request->priority,
         ]);
-
+    
         return response()->json([
             'success' => true,
             'message' => 'Task updated successfully.',
             'task' => $task
         ]);
     }
-
-    /**
+    
+        /**
      * Remove the specified resource via AJAX.
      */
     public function destroy($id)

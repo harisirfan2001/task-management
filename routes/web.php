@@ -16,6 +16,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/', function () {
         return view('manager.create');
     });
-    Route::resource('manager-dashboard', PMController::class);
+    Route::resource('manager-dashboard', PMController::class)->parameters([
+        'manager-dashboard' => 'task'
+    ]);
+    
+
+
 });
 

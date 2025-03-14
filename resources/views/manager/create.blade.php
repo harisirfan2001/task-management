@@ -79,13 +79,13 @@
             border-top: 5px solid blue;
         }
         .card {
-    width: 100%; 
+    width: 100%;
     max-width: 100%;
-    max-height: 45px; 
+    max-height: 45px;
     display: flex;
     justify-content: space-between;
     background: #f8f9fa;
-    padding: 5px 10px; 
+    padding: 5px 10px;
     margin: 7px 0px;
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
     transition: max-height 0.6s ease-in-out, padding 0.3s ease-in-out;
@@ -96,46 +96,46 @@
 
 .card:hover {
     display:flex;
-    max-height: 170px; 
-    border-radius: 30px; 
-    height: auto; 
-    min-height: 70px; 
+    max-height: 170px;
+    border-radius: 30px;
+    height: auto;
+    min-height: 70px;
     border-radius: 8px;
     background: white;
-    padding: 3px 15px; 
+    padding: 3px 15px;
     margin: 7px 0px;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
     transition: all 0.6s ease-in-out;
-    white-space: normal; 
-    transform: scale(1.02); 
+    white-space: normal;
+    transform: scale(1.02);
 }
 
-        .summary-card1:hover { 
+        .summary-card1:hover {
             box-shadow: 3px 3px 10px rgb(11, 194, 35);
             background: rgb(157, 255, 170);
             border-top:none;
             transition: 0.3s;
         }
-        .summary-card2:hover { 
+        .summary-card2:hover {
             box-shadow: 3px 3px 10px rgb(219, 198, 4);
             background: rgb(255, 238, 82);
             transition: 0.3s;
             border-top:none;
         }
-        .summary-card3:hover { 
+        .summary-card3:hover {
             box-shadow: 3px 3px 10px rgb(248, 0, 0);
             background: rgb(255, 157, 157);
             transition: 0.3s;
             border-top:none;
         }
-        .summary-card4:hover { 
+        .summary-card4:hover {
             box-shadow: 3px 3px 10px rgb(0, 38, 255);
             background: rgb(51, 83, 243);
             transition: 0.3s;
             border-top:none;
         }
 
-      
+
 
         .priority-high {
            border-left: 5px solid red;
@@ -146,32 +146,32 @@
             transition: 0.3s;
             border-left:none;
 
-  
+
         }
 
         .priority-medium {
             border-left: 5px solid orange;
-           
-            
+
+
         }
         .priority-medium:hover {
             border-left: 5px solid green;
             background: rgb(255, 209, 157);
             transition: 0.3s;
             border-left:none;
-            
+
         }
 
         .priority-low {
             border-left: 5px solid green;
-            
+
         }
         .priority-low:hover {
             border-left: 5px solid green;
             background: rgb(157, 255, 170);
             transition: 0.3s;
             border-left:none;
-            
+
         }
 
         .task-date {
@@ -191,7 +191,7 @@
             justify-content: flex-start;
             flex-wrap: wrap;
         }
-        .badge{            
+        .badge{
             margin-top: 5px;
             font-size: 14px;
         }
@@ -201,8 +201,8 @@
         .task-header {
     display: flex;
     justify-content: space-between;
-    align-items: center; 
-    width: 100%; 
+    align-items: center;
+    width: 100%;
 }
     </style>
 </head>
@@ -232,7 +232,7 @@
     </nav>
 
     <div class="container mt-4">
-        
+
         <div class="row">
             <div class="col-md-3">
                 <div class="summary-card1">
@@ -245,7 +245,7 @@
                     <h4>Completed Tasks</h4>
                     <h2 id="completedTasks">{{$completedTasks ?? 0}}</h2>
                 </div>
-            </div> 
+            </div>
             <div class="col-md-3">
                 <div class="summary-card3">
                     <h4>Cancelled Tasks</h4>
@@ -258,12 +258,12 @@
                     <h2 id="queriesTasks">0</h2>
                 </div>
         </div>
-        
+
     </div>
-    
+
     <h3 class="mt-4">Task List</h3>
     <div id="taskList"></div>
-    
+
     <!-- Task Modal -->
     <div class="modal fade" id="taskModal" tabindex="-1">
         <div class="modal-dialog">
@@ -274,8 +274,11 @@
                 </div>
                 <div class="modal-body">
                     <form id="taskForm">
+                    <div class="mb-3">
+                        <label for="taskId" class="form-label">Task ID</label>
+                        <input type="text" id="taskId" name="task_id" class="form-control" readonly>
+                    </div>
                         <div class="mb-3">
-                            <input type="hidden" id="taskId" name="task_id">
                             <label class="form-label">Description</label>
                             <input type="text" class="form-control" name="description" required>
                         </div>
@@ -308,17 +311,35 @@
     </div>
 
     <script>
+           $(document).ready(function () {
+        $('#addTaskButton').click(function () {
+            $.ajax({
+                url: "/manager-dashboard/create", 
+                type: "GET",
+                success: function (response) {
+                    $('#taskId').val(response.nextTaskId); 
+                    $('#taskModal').modal('show'); 
+                },
+                error: function () {
+                    alert("Error fetching task ID.");
+                }
+            });
+        });
+    });
+
+
+
         $('#addTaskButton').click(function() {
-    $('#taskForm')[0].reset(); 
-    $('#taskId').val(''); 
+    $('#taskForm')[0].reset();
+    $('#taskId').val('');
 });
                 $(document).ready(function () {
                     show();
                 });
-       
+
             function show() {
                 $.ajax({
-                    url: "/manager-dashboard",
+                    url: "/manager-dashboard/",
                     method: "GET",
                     dataType: 'json',
                     success: function (response) {
@@ -335,7 +356,7 @@
                          <div class="task-header">
                                  <p><span class="badge  ${getStatusClass(task.status)}">${task.status}</span></p>
                                <p><span class="taskid badge bg-primary">Task # ${task.id}</span></p>
-                       
+
                                  <span class="task-date ">${new Date(task.created_at).toLocaleDateString()}</span>
                                     </div>
                             <h5><strong>${task.description}</strong></h5>
@@ -349,10 +370,10 @@
                                 <div class="task-actions">
                                  <a href="#" class="btn btn-warning btn-sm" onclick="editTask(event, ${task.id})">Edit</a>
                                  <a href="#" class="btn btn-danger btn-sm" onclick="deleteTask(event, ${task.id})">Delete</a>
-                                </div>     
+                                </div>
                         </div>
 
-                    
+
                     `);
                         });
                     },
@@ -361,46 +382,82 @@
                     }
                 });
             }
-            
 
             $('#taskForm').submit(function (e) {
-              e.preventDefault();
+    e.preventDefault();
 
-    let taskId = $('#taskId').val(); // Get the task ID
-    let formData = $(this).serialize();
-    let method = taskId ? "PUT" : "POST"; // Determine if it's a new task or an update
+    let taskId = $('#taskId').val(); 
+    let formData = $(this).serialize(); 
+    let method = taskId ? "PUT" : "POST";  
     let url = taskId ? `/manager-dashboard/${taskId}` : "/manager-dashboard";
 
     $.ajax({
         url: url,
-        method: method,
-        data: formData,
+        type: "POST",  // Always use POST
+        data: formData + (taskId ? "&_method=PUT" : ""), // Laravel requires _method for PUT
         headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
         success: function () {
             $('#taskModal').modal('hide');
             $('#taskForm')[0].reset();
-            show(); 
+            show();
         },
-        error: function () {
+        error: function (xhr, status, error) {
+            console.log(xhr.responseText); // 🔍 Log error for debugging
+            alert('Error processing request.');
+        }
+    });
+});
+$('#taskForm').submit(function (e) {
+    e.preventDefault();
+
+    let taskId = $('#taskId').val(); // Get task ID from form
+    let formData = new FormData(this);
+    let url = "/manager-dashboard";
+    let method = "POST"; // Default method is POST for creating a new task
+
+    if (taskId) { 
+        url = `/manager-dashboard/${taskId}`;
+        formData.append('_method', 'PUT'); // Laravel requires _method for PUT
+    }
+
+    console.log("Sending request to:", url, "with method:", method); // Debugging
+
+    $.ajax({
+        url: url,
+        type: method,
+        data: formData, 
+        processData: false,
+        contentType: false,
+        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+        success: function (response) {
+            console.log("Success:", response);
+            $('#taskModal').modal('hide');
+            $('#taskForm')[0].reset();
+            show(); // Refresh task list
+        },
+        error: function (xhr) {
+            console.log("Error:", xhr.responseText); // Log detailed error
             alert('Error processing request.');
         }
     });
 });
 
 
+
+
         function getStatusClass(status) {
-    let normalizedStatus = status.trim().toLowerCase(); 
+    let normalizedStatus = status.trim().toLowerCase();
     switch (normalizedStatus) {
-        case 'active': return 'bg-success text-white'; 
-        case 'cancelled': return 'bg-danger text-white'; 
-        case 'completed': return 'bg-primary text-white'; 
+        case 'active': return 'bg-success text-white';
+        case 'cancelled': return 'bg-danger text-white';
+        case 'completed': return 'bg-primary text-white';
         default: return 'bg-dark text-dark';
     }
 }
 function editTask(event, taskId) {
     event.preventDefault();
     $.ajax({
-        url: `/manager-dashboard/${taskId}/edit`,
+        url: `/manager-dashboard/${taskId}/show`,
         type: "GET",
         success: function (task) {
             $('#taskId').val(task.id);
@@ -430,7 +487,7 @@ function deleteTask(event, taskId) {
             success: function () {
                 alert('Task deleted successfully.');
                 show();
-                
+
             },
             error: function () {
                 alert('Error deleting task.');
